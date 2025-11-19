@@ -1,0 +1,21 @@
+@import "variables";
+@import "reset";
+//@import "layout";
+//@import "typography";
+//@import "components";
+@import "utilidades";
+/* --- IGNORE --- */
+
+
+body {
+  font-family: $fuente_principal;
+  background-color: $color_fondo;
+  color: $color_texto;
+  line-height: 1.6;
+  padding: 20px;
+}
+h1{
+  font-family: $fuente_titulo;
+  color: $color_primario;
+}
+
