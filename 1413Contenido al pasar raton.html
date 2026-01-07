@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo WCAG 1.4.13 - Tooltips Accesibles</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f4f9;
+            padding: 40px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        h1 { text-align: center; margin-bottom: 40px; }
+        
+        .container {
+            display: flex;
+            gap: 50px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 30px;
+            width: 350px;
+            position: relative; /* Necesario para posicionar el tooltip */
+        }
+
+        h2 { margin-top: 0; color: #6C63FF; }
+        
+        /* Botones disparadores */
+        .trigger-btn {
+            background-color: #eee;
+            border: 2px solid #ccc;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-block;
+        }
+        
+        /* =========================================
+           CASO 1: TOOLTIP INACCESIBLE (Solo CSS)
+           ========================================= */
+        .bad-tooltip-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Este tooltip desaparece si intentas mover el ratón sobre él 
+           y NO se puede cerrar con ESC */
+        .bad-tooltip {
+            display: none;
+            position: absolute;
+            bottom: 120%;
+            left: 0;
+            background: #e74c3c;
+            color: white;
+            padding: 10px;
+            width: 200px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            pointer-events: none; /* ERROR: No deja interactuar con él */
+        }
+
+        .bad-tooltip-wrapper:hover .bad-tooltip,
+        .bad-tooltip-wrapper:focus-within .bad-tooltip {
+            display: block;
+        }
+
+
+        /* =========================================
+           CASO 2: TOOLTIP ACCESIBLE (HTML + JS)
+           ========================================= */
+        
+        /* El contenedor del disparador */
+        .accessible-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .accessible-tooltip {
+            /* Oculto por defecto, pero usando visibilidad para lectores de pantalla */
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            top: 100%; /* Sale por debajo */
+            left: 0;
+            margin-top: 10px; /* Un pequeño espacio */
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            width: 220px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            z-index: 100;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: opacity 0.2s;
+            
+            /* REGLA 2: HOVERABLE */
+            /* Es crucial que no haya "huecos" vacíos entre el botón y el tooltip.
+               Si hay margen, el ratón "se cae" y el tooltip se cierra. 
+               Aquí usamos un pseudo-elemento transparente para puentear el espacio */
+        }
+        
+        .accessible-tooltip::before {
+            content: '';
+            position: absolute;
+            top: -10px; /* Cubre el margen superior */
+            left: 0;
+            width: 100%;
+            height: 10px;
+        }
+
+        /* Clase para mostrarlo (gestionada por JS y CSS) */
+        .is-visible {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Prueba WCAG 1.4.13: Tooltips</h1>
+
+    <div class="container">
+
+        <!-- CASO MALO -->
+        <article class="card">
+            <span class="status-badge" style="background: #e74c3c">Falla 1.4.13</span>
+            <h2>❌ El Tooltip CSS Puro</h2>
+            <p>Pasa el ratón por el botón:</p>
+            
+            <div class="bad-tooltip-wrapper">
+                <button class="trigger-btn">Ver Información</button>
+                <div class="bad-tooltip" role="tooltip">
+                    Este tooltip desaparece si intentas mover el ratón hacia aquí para copiar el texto. Además, no puedes cerrarlo con ESC si te tapa algo.
+                </div>
+            </div>
+
+            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+            <p style="font-size: 0.9em; color: #666;">
+                <strong>Por qué falla:</strong>
+                <br>1. Si mueves el ratón al texto rojo, desaparece.
+                <br>2. Si pulsas ESC, no se va.
+            </p>
+        </article>
+
+
+        <!-- CASO BUENO -->
+        <article class="card">
+            <span class="status-badge" style="background: #2ecc71">Cumple 1.4.13</span>
+            <h2>✅ El Tooltip Robusto</h2>
+            <p>Pasa el ratón o usa el tabulador:</p>
+
+            <div class="accessible-wrapper">
+                <!-- Usamos aria-describedby para vincular el botón con el tooltip semánticamente -->
+                <button class="trigger-btn" id="btn-accesible" aria-describedby="tooltip-info">
+                    Ver Información Accesible
+                </button>
+                
+                <div id="tooltip-info" class="accessible-tooltip" role="tooltip">
+                    <p style="margin:0 0 10px 0;"><strong>¡Hola! Soy persistente.</strong></p>
+                    Puedes mover el ratón sobre mí para copiar este texto.
+                    <br><br>
+                    <a href="#" style="color:#48dbfb">Tengo un enlace</a>.
+                    <br><br>
+                    <em>Pulsa ESC para cerrarme.</em>
+                </div>
+            </div>
+
+            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+            <p style="font-size: 0.9em; color: #666;">
+                <strong>Por qué cumple:</strong>
+                <br>1. Puedes pasar el ratón DEL botón AL tooltip sin que se cierre.
+                <br>2. Puedes cerrarlo pulsando ESC.
+            </p>
+        </article>
+
+    </div>
+
+    <script>
+        // Lógica para el Tooltip Accesible
+        const trigger = document.getElementById('btn-accesible');
+        const tooltip = document.getElementById('tooltip-info');
+        let isHovered = false;
+        let isFocused = false;
+
+        // Función para mostrar
+        function show() {
+            tooltip.classList.add('is-visible');
+        }
+
+        // Función para ocultar
+        function hide() {
+            // Solo ocultamos si ni el botón ni el tooltip tienen interacción
+            if (!isHovered && !isFocused) {
+                tooltip.classList.remove('is-visible');
+            }
+        }
+
+        // 1. EVENTOS DE RATÓN (Hoverable)
+        // ------------------------------------------------
+        
+        // Entrar en el botón
+        trigger.addEventListener('mouseenter', () => {
+            isHovered = true;
+            show();
+        });
+
+        // Salir del botón (Damos un pequeño margen de tiempo o comprobamos si entramos al tooltip)
+        trigger.addEventListener('mouseleave', () => {
+            // Esperamos un instante minúsculo para ver si el ratón ha entrado en el tooltip
+            setTimeout(() => {
+                if (!tooltip.matches(':hover')) {
+                    isHovered = false;
+                    hide();
+                }
+            }, 10); // 10ms es suficiente
+        });
+
+        // Entrar/Salir del propio tooltip (Para cumplir la regla: "No desaparecer si mueves el ratón sobre él")
+        tooltip.addEventListener('mouseleave', () => {
+            isHovered = false;
+            hide();
+        });
+
+
+        // 2. EVENTOS DE TECLADO (Focus & ESC)
+        // ------------------------------------------------
+
+        // Foco en el botón
+        trigger.addEventListener('focus', () => {
+            isFocused = true;
+            show();
+        });
+
+        // Perder foco (Blur)
+        trigger.addEventListener('blur', () => {
+            isFocused = false;
+            hide();
+        });
+
+        // REGLA CLAVE: Cerrar con ESC (Dismissible)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && tooltip.classList.contains('is-visible')) {
+                hide();
+                // Opcional: Devolver foco al trigger si estaba dentro del tooltip
+                trigger.focus(); 
+            }
+        });
+    </script>
+
+</body>
+</html>
